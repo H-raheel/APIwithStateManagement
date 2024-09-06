@@ -4,7 +4,7 @@ import React from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { LoginSchema } from "../schema";
-import { loginUser, setError } from "../store/reducers/authSlice";
+import { loginUser } from "../store/reducers/authSlice";
 
 
 function LoginForm() {
@@ -28,11 +28,11 @@ function LoginForm() {
         },
         validationSchema: LoginSchema,
         onSubmit :
-        (values, helpers) => {
-       dispatch(loginUser( values ));
-         if(error!=null){
+      async  (values, helpers) => {
+     await  dispatch(loginUser( values ));
+         if(!error){
           helpers.resetForm();
-           dispatch(setError());
+           console.log("hereee")
             navigate("/dashboard");
          }
          

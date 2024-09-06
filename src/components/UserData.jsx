@@ -1,5 +1,5 @@
 import { PencilIcon, TrashIcon } from "@heroicons/react/16/solid";
-import { Box, Button, IconButton, Modal, Paper, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, IconButton, Modal, Paper, TextField, Typography } from '@mui/material';
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -8,8 +8,9 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import { useFormik } from "formik";
 import React, { useEffect, useState } from "react";
-
+import { useDispatch, useSelector } from "react-redux";
 import { EditSchema } from "../schema";
+import { showDoctors } from "../store/reducers/doctorSlice";
 const dummyUserData = [
     { name: "John Doe", email: "john.doe@example.com" },
     { name: "Jane Smith", email: "jane.smith@example.com" },
@@ -18,11 +19,19 @@ const dummyUserData = [
   ];
 
 export default function UserTable({ refreshData}) {
+    const {doctors,loading,error} = useSelector((state) => state.doctor);
+    const dispatch=useDispatch()
+    console.log(doctors);
 //   const userData = useSelector((state) => state.user.users);
  const userData = dummyUserData;
   const [editData, setEditData] = useState({ name: "", email: "" });
   const [open, setOpen] = useState(false);
  
+
+  useEffect(() => {
+    console.log('Dispatching showDoctors action');
+    dispatch(showDoctors()); // Call the action to fetch doctors
+  }, []);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
@@ -67,7 +76,13 @@ export default function UserTable({ refreshData}) {
     console.log(values)
     },
   });
-
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
   return (
     <TableContainer component={Paper} elevation={5} borderRadius={5}>
       <Table aria-label="simple table" size="small">

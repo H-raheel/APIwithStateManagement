@@ -6,9 +6,9 @@ function ProtectedRoute() {
    
     const token = localStorage.getItem("token"); 
 
-  
+    
     const isAuthenticated =  token;
-
+      console.log(isAuthenticated);
     return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
 }
 

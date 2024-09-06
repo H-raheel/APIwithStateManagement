@@ -1,19 +1,22 @@
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, TextField, Typography } from "@mui/material";
 import { useFormik } from "formik";
 import React, { useState } from "react";
-
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { RegisterSchema } from "../schema";
+import { createUser,setError } from "../store/reducers/authSlice";
 
 function RegisterForm() {
   const navigate = useNavigate();
- 
-  const [validationError, setValidationError] = useState("");
+  const dispatch=useDispatch();
+  const {loading,error}=useSelector((state)=>state.auth);
+  console.log(loading)
+  console.log(error)
   const {
     values,
     errors,
     touched,
-
+   
     handleChange,
     handleSubmit,
   } = useFormik({
@@ -21,28 +24,21 @@ function RegisterForm() {
       name: "",
       email: "",
       password: "",
-      confirmPassword: "",
+      password_confirmation: "",
     },
     validationSchema: RegisterSchema,
     onSubmit: (values, helpers) => {
-    //   const result = await dispatch(userExists({ email:values.email }));
-    //   if(result.payload){
-    //     setValidationError('user already exists!')
-    //   }
-    //   else{
-    //   dispatch(
-    //     addUser({
-    //       name: values.name,
-    //       email: values.email,
-    //       password: values.password,
-    //     })
-    //   );
+      const result =  dispatch(createUser( values ));
+     if(error!=null){
+      helpers.resetForm();
+      
+        dispatch(setError());
+        navigate("/login");
+     }
+     
+    
   
-    //   helpers.resetForm();
-    //   alert("user signed up successfully");
-    //   navigate("/login");
-    // }
-    console.log(values);
+   
     },
     
   
@@ -98,18 +94,30 @@ function RegisterForm() {
             helperText={touched.password && errors.password}
           />
           <TextField
-            name="confirmPassword"
+            name="password_confirmation"
             label="confirmPassword"
             type="password"
-            value={values.confirmPassword}
+            value={values.password_confirmation}
             onChange={handleChange}
             fullWidth
-            error={touched.confirmPassword && errors.confirmPassword}
-            helperText={touched.confirmPassword && errors.confirmPassword}
+            error={touched.password_confirmation && errors.password_confirmation}
+            helperText={touched.password_confirmation && errors.password_confirmation}
           />
-          <Button type="submit" variant="contained" color="primary" fullWidth>
-            Register
-          </Button>
+          
+          <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          mt={2}
+        >
+          {loading ? (
+            <CircularProgress color="primary" />
+          ) : (
+            <Button type="submit" variant="contained" color="primary" fullWidth>
+              Register
+            </Button>
+          )}
+        </Box>
           <Box mt={2} textAlign="center">
             Already have an account?{" "}
             <Link
@@ -118,14 +126,14 @@ function RegisterForm() {
             >
               Login
             </Link>
-            {validationError && (
+            {error && (
         <Typography 
           variant="body2" 
           color="error" 
           align="center" 
            mt={2}
         >
-          {validationError}
+          {error}
         </Typography>)}
           </Box>
         </Box>

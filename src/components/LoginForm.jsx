@@ -1,15 +1,17 @@
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, TextField, Typography } from "@mui/material";
 import { useFormik } from "formik";
-import React, { useState } from 'react';
-
+import React from 'react';
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { LoginSchema } from "../schema";
+import { loginUser, setError } from "../store/reducers/authSlice";
 
 
 function LoginForm() {
    const navigate=useNavigate();
-
-   const [validationError,setValidationError]=useState("");
+    const dispatch=useDispatch()
+    const {loading,error}=useSelector((state)=>state.auth);
+   
     const {
         values,
         errors,
@@ -27,13 +29,17 @@ function LoginForm() {
         validationSchema: LoginSchema,
         onSubmit :
         (values, helpers) => {
-           
-          console.log(values)
+       dispatch(loginUser( values ));
+         if(error!=null){
+          helpers.resetForm();
+           dispatch(setError());
+            navigate("/dashboard");
+         }
          
-           
         
-          
-          }
+      
+       
+        },
       });
     
      
@@ -83,9 +89,20 @@ function LoginForm() {
          
         />
         
-        <Button type="submit" variant="contained" color="primary" fullWidth>
-       Login
-        </Button>
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          mt={2}
+        >
+          {loading ? (
+            <CircularProgress color="primary" />
+          ) : (
+            <Button type="submit" variant="contained" color="primary" fullWidth>
+             Login
+            </Button>
+          )}
+        </Box>
         <Box mt={2}
         textAlign='center'>
        Dont have an account?{" "}
@@ -95,14 +112,14 @@ function LoginForm() {
         >
           Register
         </Link>
-        {validationError && (
+        {error && (
         <Typography 
           variant="body2" 
           color="error" 
           align="center" 
         mt={2}
         >
-          {validationError}
+          {error}
         </Typography>
       )}
       </Box>

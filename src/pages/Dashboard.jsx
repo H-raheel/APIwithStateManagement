@@ -2,24 +2,24 @@ import { PlusIcon, PowerIcon } from "@heroicons/react/16/solid";
 import { AppBar, Box, Button, IconButton, Modal, TextField, Toolbar, Typography } from '@mui/material';
 import { useFormik } from "formik";
 import React, { useState } from 'react';
-
+import { useDispatch } from "react-redux";
 import { useNavigate } from 'react-router-dom';
 import UserTable from '../components/UserData';
 import { RegisterSchema } from "../schema";
-
-
+import { logout } from "../store/reducers/authSlice";
 function Dashboard() {
  //const user = useSelector((state) => state.user.currentUser);
   const navigate = useNavigate();
-//   const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const [validationError,setValidationError]=useState("");
   const [open, setOpen] = useState(false);
   const [reloadTable, setReloadTable] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const [refreshData,setRefreshData]=useState(false);
+  
   const logoutUser = () => {
-   // dispatch(logout());
+   dispatch(logout());
     navigate('/login');
   };
 
@@ -76,7 +76,7 @@ function Dashboard() {
           <Typography variant="h6" sx={{ flexGrow: 1 }} >
             Dashboard
           </Typography>
-         <IconButton 
+          <IconButton 
             variant="contained" 
             size="small"
             onClick={logoutUser}

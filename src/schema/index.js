@@ -14,7 +14,7 @@ export const RegisterSchema = yup.object().shape({
     .min(5)
     .matches(passwordRules, { message: "Please create a stronger password" })
     .required("Please enter password"),
- password_confirmation: yup
+  password_confirmation: yup
     .string()
     .oneOf([yup.ref("password"), null], "Passwords must match")
     .required("Please enter password"),
@@ -37,7 +37,7 @@ export const EditSchema = yup.object().shape({
     .string()
     .email("Please enter a valid email")
     .required("Please enter email"),
-name:yup.string().required("Please enter the name!")
+  name: yup.string().required("Please enter the name!"),
 });
 
 export const newDoctorSchema = yup.object().shape({
@@ -45,15 +45,28 @@ export const newDoctorSchema = yup.object().shape({
     .string()
     .email("Please enter a valid email")
     .required("Please enter email"),
-  name: yup
-    .string()
-    .required("Please enter the name!"),
+  name: yup.string().required("Please enter the name!"),
   contact: yup
     .string()
     .matches(/^[0-9]+$/, "Contact number must be digits only")
     .min(10, "Contact number must be at least 10 digits")
     .required("Please enter the contact number"),
-  dc_id: yup
+  dc_id: yup.string().required("Please enter the ID"),
+});
+
+export const editDoctorSchema = yup.object().shape({
+  id:yup
+  .string()
+  .matches(/^[0-9]+$/).required(),
+  email: yup
     .string()
-    .required("Please enter the ID")
+    .email("Please enter a valid email")
+    .required("Please enter email"),
+  name: yup.string().required("Please enter the name!"),
+  contact: yup
+    .string()
+    .matches(/^[0-9]+$/, "Contact number must be digits only")
+    .min(10, "Contact number must be at least 10 digits")
+    .required("Please enter the contact number"),
+  dc_id: yup.string().required("Please enter the ID"),
 });

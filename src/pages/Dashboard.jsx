@@ -48,24 +48,13 @@ function Dashboard() {
     onSubmit: async (values, helpers) => {
       await dispatch(addDoctor(values));
       
-      dispatch(nullError());
+    //  dispatch(nullError());
       if (!error){
        handleClose();
        alert('doctor added');
       }
       helpers.resetForm();
-    //   const result = await dispatch(userExists({ email:values.email }));
-    //   if(result.payload){
-    //     setValidationError('user already exists!')
-    //   }
-    //   else{
-    //   dispatch(
-    //     addUser({
-    //       name: values.name,
-    //       email: values.email,
-    //       password: values.password,
-    //     })
-    //   );
+   
     
     
    

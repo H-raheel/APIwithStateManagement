@@ -11,19 +11,14 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { EditSchema } from "../schema";
 import { showDoctors } from "../store/reducers/doctorSlice";
-const dummyUserData = [
-    { name: "John Doe", email: "john.doe@example.com" },
-    { name: "Jane Smith", email: "jane.smith@example.com" },
-    { name: "Alice Johnson", email: "alice.johnson@example.com" },
-    { name: "Bob Brown", email: "bob.brown@example.com" },
-  ];
+
 
 export default function UserTable({ refreshData}) {
     const {doctors,loading,error} = useSelector((state) => state.doctor);
     const dispatch=useDispatch()
     console.log(doctors);
 //   const userData = useSelector((state) => state.user.users);
- const userData = dummyUserData;
+ const userData = doctors;
   const [editData, setEditData] = useState({ name: "", email: "" });
   const [open, setOpen] = useState(false);
  
@@ -31,14 +26,14 @@ export default function UserTable({ refreshData}) {
   useEffect(() => {
     console.log('Dispatching showDoctors action');
     dispatch(showDoctors()); // Call the action to fetch doctors
-  }, []);
+  }, [refreshData,]);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
 //   const dispatch = useDispatch();
   const handleDelete = (email) => {
   
-  //  dispatch(deleteUser({email}));
+  
     
     setRows((prevRows) => prevRows.filter((row) => row.email !== email));
   };
@@ -52,7 +47,7 @@ export default function UserTable({ refreshData}) {
   const [rows, setRows] = useState(userData);
   useEffect(() => {
     setRows(userData);
-  }, [refreshData, userData]);
+  }, [userData]);
 
   const {
     values,
@@ -89,21 +84,29 @@ export default function UserTable({ refreshData}) {
         <TableHead>
           <TableRow sx={{ backgroundColor: "black" }}>
             <TableCell sx={{ fontWeight: "bold", color: "white" }}>
+              <Typography variant="h5">Id</Typography>
+            </TableCell>
+            <TableCell sx={{ fontWeight: "bold", color: "white" }}>
+              <Typography variant="h5">Name</Typography>
+            </TableCell>
+            <TableCell sx={{ fontWeight: "bold", color: "white" }}>
+              <Typography variant="h5">Contact</Typography>
+            </TableCell>
+            <TableCell sx={{ fontWeight: "bold", color: "white" }}>
               <Typography variant="h5">Email</Typography>
             </TableCell>
             <TableCell sx={{ fontWeight: "bold", color: "white" }}>
-              <Typography variant="h5">Username</Typography>
+              <Typography variant="h5">Category</Typography>
             </TableCell>
             <TableCell sx={{ fontWeight: "bold", color: "white" }}>
               <Typography variant="h5">Actions</Typography>
             </TableCell>
-            
           </TableRow>
         </TableHead>
         <TableBody>
           {rows.map((row) => (
             <TableRow
-              key={row.email}
+              key={row.id}
               sx={{
                 "&:hover": {
                   backgroundColor: "#f1f1f1",
@@ -111,10 +114,19 @@ export default function UserTable({ refreshData}) {
               }}
             >
               <TableCell>
-                <Typography variant="body">{row.email}</Typography>
+                <Typography variant="body">{row.id}</Typography>
               </TableCell>
               <TableCell>
                 <Typography variant="body">{row.name}</Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="body">{row.contact}</Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="body">{row.email}</Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="body">{row.doctor_category}</Typography>
               </TableCell>
               <TableCell>
                 <IconButton

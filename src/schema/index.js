@@ -39,3 +39,21 @@ export const EditSchema = yup.object().shape({
     .required("Please enter email"),
 name:yup.string().required("Please enter the name!")
 });
+
+export const newDoctorSchema = yup.object().shape({
+  email: yup
+    .string()
+    .email("Please enter a valid email")
+    .required("Please enter email"),
+  name: yup
+    .string()
+    .required("Please enter the name!"),
+  contact: yup
+    .string()
+    .matches(/^[0-9]+$/, "Contact number must be digits only")
+    .min(10, "Contact number must be at least 10 digits")
+    .required("Please enter the contact number"),
+  dc_id: yup
+    .string()
+    .required("Please enter the ID")
+});

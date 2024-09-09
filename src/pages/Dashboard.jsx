@@ -2,11 +2,12 @@ import { PlusIcon, PowerIcon } from "@heroicons/react/16/solid";
 import { AppBar, Box, Button, IconButton, Modal, TextField, Toolbar, Typography } from '@mui/material';
 import { useFormik } from "formik";
 import React, { useState } from 'react';
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from 'react-router-dom';
 import UserTable from '../components/UserData';
-import { RegisterSchema } from "../schema";
+import { newDoctorSchema } from "../schema";
 import { logout } from "../store/reducers/authSlice";
+import { addDoctor, nullError } from "../store/reducers/doctorSlice";
 function Dashboard() {
  //const user = useSelector((state) => state.user.currentUser);
   const navigate = useNavigate();
@@ -14,10 +15,16 @@ function Dashboard() {
   const [validationError,setValidationError]=useState("");
   const [open, setOpen] = useState(false);
   const [reloadTable, setReloadTable] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleOpen = () => {
+    
+    setOpen(true);}
+  const handleClose = () => {
+    dispatch(nullError());
+    setOpen(false); 
+   
+   }
   const [refreshData,setRefreshData]=useState(false);
-  
+  const error=useSelector((state)=>state.doctor.error);
   const logoutUser = () => {
    dispatch(logout());
     navigate('/login');
@@ -31,15 +38,22 @@ function Dashboard() {
     handleSubmit,
   } = useFormik({
     initialValues: {
-      name: "",
+      dc_id: "31",
       email: "",
-      password: "",
-      confirmPassword: "",
+      name: "",
+      contact: "",
     },
-    validationSchema: RegisterSchema,
+    validationSchema: newDoctorSchema,
    
     onSubmit: async (values, helpers) => {
-     
+      await dispatch(addDoctor(values));
+      
+      dispatch(nullError());
+      if (!error){
+       handleClose();
+       alert('doctor added');
+      }
+      helpers.resetForm();
     //   const result = await dispatch(userExists({ email:values.email }));
     //   if(result.payload){
     //     setValidationError('user already exists!')
@@ -53,11 +67,12 @@ function Dashboard() {
     //     })
     //   );
     
-    //   helpers.resetForm();
-    //   handleClose()
+    
+   
      
-    //   setRefreshData((prev)=>!(prev));
+    //   
     // }
+    setRefreshData((prev)=>!(prev));
     console.log(values);
     },
   });
@@ -94,9 +109,7 @@ function Dashboard() {
       </AppBar>
       <Box p={4} gap={4} display="flex" flexDirection="column" >
         
-          <Typography variant='h4'>Welcome,
-             {/* {user} */}
-             </Typography>
+        
          
           
     <UserTable refreshData={refreshData} />
@@ -159,26 +172,17 @@ function Dashboard() {
             helperText={touched.email && errors.email}
           />
 
-          <TextField
-            name="password"
-            label="Password"
-            type="password"
-            value={values.password}
-            onChange={handleChange}
-            fullWidth
-            error={touched.password && errors.password}
-            helperText={touched.password && errors.password}
-          />
+        
           <TextField
             
-            name="confirmPassword"
-            label="confirmPassword"
-            type="password"
-            value={values.confirmPassword}
+            name="contact"
+            label="contact"
+            type="number"
+            value={values.contact}
             onChange={handleChange}
             fullWidth
-            error={touched.confirmPassword && errors.confirmPassword}
-            helperText={touched.confirmPassword && errors.confirmPassword}
+            error={touched.contact && errors.contact}
+            helperText={touched.contact && errors.contact}
           />
           <Button type="submit" variant="contained" color="primary" fullWidth>
             Create User
@@ -187,14 +191,14 @@ function Dashboard() {
           <Box mt={2} textAlign="center">
           
             
-            {validationError && (
+            {error && (
         <Typography 
           variant="body2" 
           color="error" 
           align="center" 
            mt={2}
         >
-          {validationError}
+          {error}
         </Typography>)}
           </Box>
           </Box>

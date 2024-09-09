@@ -29,7 +29,7 @@ function LoginForm() {
         validationSchema: LoginSchema,
         onSubmit :
       async  (values, helpers) => {
-     await  dispatch(loginUser( values ));
+      await  dispatch(loginUser( values ));
          if(!error){
           helpers.resetForm();
            console.log("hereee")

@@ -22,6 +22,7 @@ function App() {
 
     <Routes>
       //authenticated
+      console.log(isAuthenticated)
     {  !isAuthenticated &&
      ( <>
      <Route path="/login" element={ <LoginPage />} />

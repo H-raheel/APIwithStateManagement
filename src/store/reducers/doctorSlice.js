@@ -1,18 +1,22 @@
 
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { axiosInstance } from '../../App';
+import { findCategoryForUser } from '../../helpers/findType';
 const initialState = {
   users: [],
   doctors:[],
   types:[],
+  editError:null,
   currentDoctor:"",
-  loading:false
+  
+  loading:false,
+  error:null,
 };
 
 export const doctorCategory=createAsyncThunk(
   "doctor/doctorCategory",
   async(_,{rejectWithValue})=>{
-   
+   console.log("in")
     try {
       const response = await axiosInstance.get("/categories/list",
        );
@@ -149,16 +153,26 @@ const doctorSlice = createSlice({
   initialState,
     reducers:{
       nullError: (state) => {
-        
+        state.editError=null;
         state.error = null;
+        console.log(state.editError)
       },
+    
     },
     extraReducers: (builder) => {
       builder
+      .addCase(doctorCategory.fulfilled,(state,action)=>{
+        state.types=action.payload.DoctorsCategory;
+        console.log(state.types);
+      })
+      .addCase(doctorCategory.rejected,(state)=>{
+        state.types=null;
+      })
       .addCase(showDoctors.pending, (state) => {
         state.loading = true;
       })
       .addCase(showDoctors.fulfilled,(state,action)=>{
+        console.log(state.types);
         state.loading=false;
         state.doctors=action.payload.Doctors;
       })
@@ -173,10 +187,12 @@ const doctorSlice = createSlice({
       })
       .addCase(addDoctor.fulfilled,(state)=>{
         state.loading=false;
+        state.error=null;
         
       })
       .addCase(addDoctor.rejected,(state,action)=>{
         state.error = action.payload
+        console.log(state.error);
         state.loading=false;
         
       })
@@ -187,8 +203,13 @@ const doctorSlice = createSlice({
 
       })
       .addCase(showDoctor.fulfilled,(state,action)=>{
+        console.log(state.types);
         state.loading=false;
         state.currentDoctor=action.payload.Doctors;
+        const category=findCategoryForUser(state.currentDoctor,state.types);
+        state.currentDoctor={...state.currentDoctor,category};
+        console.log(state.currentDoctor)
+      
         
       })
       .addCase(showDoctor.rejected,(state,action)=>{
@@ -223,9 +244,9 @@ const doctorSlice = createSlice({
       })
       .addCase(editDoctor.rejected,(state,action)=>{
         
-        state.error = action.payload
+        state.editError = action.payload
         state.loading=false;
-        console.log(state.error);
+        console.log(state.editError);
         
       })
     }

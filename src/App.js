@@ -26,7 +26,7 @@ function App() {
     {  !isAuthenticated &&
      ( <>
      <Route path="/login" element={ <LoginPage />} />
-      <Route path="/*" element={ <LoginPage />} />
+      <Route path="*" element={ <LoginPage />} />
       <Route path="/register" element={ <RegisterPage />} />)
       </>)
       }

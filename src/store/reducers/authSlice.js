@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { axiosInstance } from "../../App";
+import { doctorCategory } from "./doctorSlice";
 
 const initialState = {
   isLoggedIn: false,
@@ -28,11 +29,13 @@ export const createUser = createAsyncThunk(
 
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
-  async (data, { rejectWithValue }) => {
+  async (data, {dispatch, rejectWithValue }) => {
     try {
       const response = await axiosInstance.post("users/login", data); 
       console.log(response.data);
+     dispatch(doctorCategory());
       return response.data; 
+      
     } catch (error) {
       console.log(error);
       if (error.response) {

@@ -1,5 +1,5 @@
 import { PlusIcon, PowerIcon } from "@heroicons/react/16/solid";
-import { AppBar, Box, Button, IconButton, Modal, TextField, Toolbar, Typography } from '@mui/material';
+import { AppBar, Box, Button, IconButton, InputLabel, MenuItem, Modal, Select, TextField, Toolbar, Typography } from '@mui/material';
 import { useFormik } from "formik";
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
@@ -15,16 +15,18 @@ function Dashboard() {
   const [validationError,setValidationError]=useState("");
   const [open, setOpen] = useState(false);
   const [reloadTable, setReloadTable] = useState(false);
+  const {error,types}=useSelector((state)=>state.doctor);
+ 
   const handleOpen = () => {
-    
+    dispatch(nullError());
     setOpen(true);}
   const handleClose = () => {
-    dispatch(nullError());
+  
     setOpen(false); 
    
    }
   const [refreshData,setRefreshData]=useState(false);
-  const error=useSelector((state)=>state.doctor.error);
+
   const logoutUser = () => {
    dispatch(logout());
     navigate('/login');
@@ -36,33 +38,34 @@ function Dashboard() {
     touched,
     handleChange,
     handleSubmit,
+    resetForm,
+    setSubmitting
   } = useFormik({
     initialValues: {
-      dc_id: "31",
+      dc_id: "",
       email: "",
       name: "",
       contact: "",
+      
     },
     validationSchema: newDoctorSchema,
    
     onSubmit: async (values, helpers) => {
-      await dispatch(addDoctor(values));
-      
-    //  dispatch(nullError());
-      if (!error){
-       handleClose();
-       alert('doctor added');
-      }
-      helpers.resetForm();
-   
-    
-    
-   
+      try {
      
-    //   
-    // }
-    setRefreshData((prev)=>!(prev));
-    console.log(values);
+        await dispatch(addDoctor(values)).unwrap();
+  
+     
+        handleClose();
+        alert('Doctor added successfully');
+       setRefreshData(!refreshData);
+        helpers.resetForm(); 
+      } catch (error) {
+       
+        console.error('Failed to add doctor:', error);
+      } finally {
+        helpers.setSubmitting(false); 
+      }
     },
   });
 
@@ -173,6 +176,23 @@ function Dashboard() {
             error={touched.contact && errors.contact}
             helperText={touched.contact && errors.contact}
           />
+     <InputLabel>Doctor Type</InputLabel>
+      <Select
+        name="dc_id"
+        label="Doctor Type"
+        value={values.dc_id}
+        onChange={handleChange}
+      >
+        {types.map((type) => (
+          <MenuItem key={type.id} value={type.id}>
+            {type.name}
+          </MenuItem>
+        ))}
+        
+ 
+      </Select>
+   
+   
           <Button type="submit" variant="contained" color="primary" fullWidth>
             Create User
           </Button>

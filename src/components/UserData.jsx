@@ -1,5 +1,5 @@
 import { EyeIcon, PencilIcon, TrashIcon } from "@heroicons/react/16/solid";
-import { Box, Button, CircularProgress, IconButton, Modal, Paper, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, IconButton, InputLabel, MenuItem, Modal, Paper, Select, TextField, Typography } from '@mui/material';
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -9,25 +9,28 @@ import TableRow from "@mui/material/TableRow";
 import { useFormik } from "formik";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { findDcIdForUser } from "../helpers/findType";
 import { editDoctorSchema } from "../schema";
 import { deleteDoctor, editDoctor, nullError, showDoctor, showDoctors } from "../store/reducers/doctorSlice";
 export default function UserTable({ refreshData}) {
-    const {doctors,loading,error,currentDoctor} = useSelector((state) => state.doctor);
+    const {doctors,loading,error,currentDoctor,editError,types} = useSelector((state) => state.doctor);
     const dispatch=useDispatch()
     console.log(doctors);
 
  const userData = doctors;
-  const [editData, setEditData] = useState({id:"", name: "", email: "" ,contact:"",dc_id:"31"});
+  const [editData, setEditData] = useState({id:"", name: "", email: "" ,contact:"",dc_id:""});
   const [open, setOpen] = useState(false);
   const [viewOpen, setViewOpen] = useState(false); 
- 
+ console.log(editError);
 
   useEffect(() => {
     console.log('Dispatching showDoctors action');
     dispatch(showDoctors()); 
   }, [refreshData,]);
-  const handleOpen = () => setOpen(true);
-    const handleClose = () => {setOpen(false);dispatch(nullError());}
+  const handleOpen = () => {setOpen(true); dispatch(nullError());}
+    const handleClose = () => {
+      setOpen(false);
+     }
 
   const handleDelete = (id) => {
   
@@ -36,7 +39,10 @@ export default function UserTable({ refreshData}) {
     setRows((prevRows) => prevRows.filter((row) => row.id !== id));
   };
   const handleEditClick = (row) => {
-    setEditData(row);
+    const dc_id=findDcIdForUser(row,types);
+   const data={dc_id,...row}
+    setEditData(data);
+    console.log(data)
     handleOpen();
   };
   const handleViewClick = (id) => {
@@ -65,26 +71,27 @@ export default function UserTable({ refreshData}) {
     onSubmit: async (values, helpers) => {
    
       const { id, ...otherData } = values; 
-
+      console.log(values);
   
       const payload = {
         id,
         data: otherData
       };
-      await dispatch(editDoctor(payload));
-     if(!error){
-        console.log(error);
-        setRows((prevRows) =>
-          prevRows.map((row) => (row.id === values.id ? { ...row, ...values } : row))
-        );
+      try{
+      await dispatch(editDoctor(payload)).unwrap();
+      handleClose();
+       alert('Doctor updated successfully');
+       setRows((prevRows) =>
+        prevRows.map((row) => (row.id === values.id ? { ...row, ...values } : row))
+      );
      
-        setEditData({id:"", name: "", email: "" ,contact:"",dc_id:"31"});
-        alert('doctor editted');
-        handleClose();
-       
-      
-        helpers.resetForm();
+          
       }
+      catch(error){
+        console.error('Failed to update doctor:', error);
+      }
+   
+       
    
     
     console.log(values)
@@ -97,6 +104,10 @@ export default function UserTable({ refreshData}) {
       </Box>
     );
   }
+
+
+
+
   return (
     <TableContainer component={Paper} elevation={5} borderRadius={5}>
       <Table aria-label="simple table" size="small">
@@ -196,13 +207,22 @@ export default function UserTable({ refreshData}) {
             bgcolor: 'background.paper',
             border: 'none',
             boxShadow: 24,
+            maxWidth: 500,
+            width: { xs: '90%', sm: '80%', md: '60%' },
             p: 4,
           }}
           display="flex"
           flexDirection="column"
           gap={2}
-        >   <form 
+        >  
+         <form 
         onSubmit={handleSubmit} autoComplete="off">
+           <Box
+          
+          display="flex"
+          flexDirection="column"
+          gap={2}
+        >
           <Typography variant="h5">Edit User Data</Typography>
           <TextField
             name="id"
@@ -216,18 +236,7 @@ export default function UserTable({ refreshData}) {
             error={touched.id && Boolean(errors.id)}
             helperText={touched.id && errors.id}
           />
-             <TextField
-            name="dc_id"
-            type="number"
-           
-            fullWidth
-            label="dc_Id"
-            value={values.dc_id}
-           
-            onChange={handleChange}
-            error={touched.dc_id && Boolean(errors.dc_id)}
-            helperText={touched.dc_id && errors.dc_id}
-          />
+          
           <TextField
             name="email"
             type="email"
@@ -261,20 +270,35 @@ export default function UserTable({ refreshData}) {
     error={touched.contact && Boolean(errors.contact)}
     helperText={touched.contact && errors.contact}
   />
+     <InputLabel>Doctor Type</InputLabel>
+      <Select
+        name="dc_id"
+        label="Doctor Type"
+        value={values.dc_id}
+        onChange={handleChange}
+      >
+        {types.map((type) => (
+          <MenuItem key={type.id} value={type.id}>
+            {type.name}
+          </MenuItem>
+        ))}
+        
+ 
+      </Select>
           <Box display="flex" justifyContent="flex-end" mt={2}>
             <Button onClick={handleClose} sx={{ mr: 2 }}>Cancel</Button>
             <Button variant="contained" color="primary" type="submit" >Save</Button>
           </Box>
-          
+          </Box>
           </form>
-          {error && (
+          {editError && (
         <Typography 
           variant="body2" 
           color="error" 
           align="center" 
            mt={2}
         >
-          {error}</Typography>)}
+          {editError}</Typography>)}
         </Box>
       </Modal>
       <Modal
@@ -292,7 +316,8 @@ export default function UserTable({ refreshData}) {
             bgcolor: 'background.paper',
             border: 'none',
             boxShadow: 24,
-           
+            maxWidth: 500,
+            width: { xs: '90%', sm: '80%', md: '60%' },
             p: 4,
             mt:7,
           }}
@@ -304,6 +329,7 @@ export default function UserTable({ refreshData}) {
               <Typography variant="body1">Name: {currentDoctor.name}</Typography>
               <Typography variant="body1">Email: {currentDoctor.email}</Typography>
               <Typography variant="body1">Contact: {currentDoctor.contact}</Typography>
+              <Typography variant="body1">Category: {currentDoctor.category}</Typography>
               {}
             </>
           ) : (

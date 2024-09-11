@@ -79,11 +79,14 @@ export default function UserTable({ refreshData}) {
       };
       try{
       await dispatch(editDoctor(payload)).unwrap();
-      handleClose();
+      
+      
+       await dispatch(showDoctors());
+       handleClose();
        alert('Doctor updated successfully');
-       setRows((prevRows) =>
-        prevRows.map((row) => (row.id === values.id ? { ...row, ...values } : row))
-      );
+      //  setRows((prevRows) =>
+      //   prevRows.map((row) => (row.id === values.id ? { ...row, ...values } : row))
+      // );
      
           
       }
